@@ -9,7 +9,66 @@ import (
 	"strings"
 )
 
-var language = map[string]string{
+func main() {
+	// pLang holds the parsed flag string.
+	var pLang string
+
+	flag.StringVar(&pLang, "lang", "go", "Programming language")
+	flag.Parse()
+
+	// Check if the parsed flag is in our languages hashmap.
+	for name, url := range languages {
+		if string(name) == strings.ToLower(pLang) {
+			if err := getFile(url); err != nil {
+				fmt.Println(err)
+			}
+			fmt.Printf("Downloaded the .gitignore for %s from %s\n", name, url)
+		}
+	}
+
+}
+
+// getFile tries to download the body of the raw gitignore file.
+func getFile(url string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println("ERROR:", err)
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	// The body contains the content of the gitignore file.
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("ERROR:", err)
+		return err
+	}
+
+	// Print out file contents as a check.
+	fmt.Println("File Contents:")
+	fmt.Println(string(body))
+
+	// Write the body contents to a file named ".gitignore".
+	writeToFile(body)
+	return nil
+}
+
+// writeToFile creates a .gitignore file and then writes
+// the passed in contents to it.
+func writeToFile(contents []byte) error {
+	err := os.WriteFile(".gitignore", contents, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return nil
+}
+
+// Languages is a hashmap containing the lowercased name of the
+// gitignore file as the key, and the url as the value.
+// For example craftcms is the name of the CraftCMS.gitignore file.
+var languages = map[string]string{
 	"al":                    "https://raw.githubusercontent.com/github/gitignore/main/AL.gitignore",
 	"actionscript":          "https://raw.githubusercontent.com/github/gitignore/main/Actionscript.gitignore",
 	"ada":                   "https://raw.githubusercontent.com/github/gitignore/main/Ada.gitignore",
@@ -140,55 +199,4 @@ var language = map[string]string{
 	"yii":                   "https://raw.githubusercontent.com/github/gitignore/main/Yii.gitignore",
 	"zendframework":         "https://raw.githubusercontent.com/github/gitignore/main/ZendFramework.gitignore",
 	"zephir":                "https://raw.githubusercontent.com/github/gitignore/main/Zephir.gitignore",
-}
-
-func main() {
-	var pLang string
-	// Name and url
-
-	flag.StringVar(&pLang, "lang", "go", "Programming language")
-	flag.Parse()
-	// fmt.Println(pLang)
-
-	for name, url := range language {
-		if string(name) == strings.ToLower(pLang) {
-			if err := getFile(url); err != nil {
-				fmt.Println(err)
-			}
-			fmt.Printf("Downloaded the .gitignore for %s from %s\n", name, url)
-
-		}
-	}
-
-	// fmt.Println(pLang)
-}
-
-func getFile(url string) error {
-	resp, err := http.Get(url)
-	if err != nil {
-		fmt.Println("ERROR:", err)
-		return err
-	}
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("ERROR:", err)
-		return err
-	}
-
-	fmt.Println("File Contents:")
-	fmt.Println(string(body))
-
-	writeToFile(body)
-	return nil
-}
-
-func writeToFile(contents []byte) error {
-	err := os.WriteFile(".gitignore", contents, 0644)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return nil
 }
