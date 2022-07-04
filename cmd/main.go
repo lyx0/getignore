@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var language = map[string]string{
@@ -149,13 +150,12 @@ func main() {
 	flag.Parse()
 	// fmt.Println(pLang)
 
-	fmt.Println("INPUT:", pLang)
 	for name, url := range language {
-		if string(name) == pLang {
+		if string(name) == strings.ToLower(pLang) {
 			if err := getFile(url); err != nil {
 				fmt.Println(err)
-				fmt.Println("FOUND", name, url)
 			}
+			fmt.Printf("Downloaded the .gitignore for %s from %s\n", name, url)
 
 		}
 	}
@@ -166,7 +166,7 @@ func main() {
 func getFile(url string) error {
 	resp, err := http.Get(url)
 	if err != nil {
-		// log.Error(err)
+		fmt.Println("ERROR:", err)
 		return err
 	}
 
@@ -174,11 +174,11 @@ func getFile(url string) error {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		// log.Error(err)
+		fmt.Println("ERROR:", err)
 		return err
 	}
 
-	fmt.Println("---FILE CONTENTS----")
+	fmt.Println("File Contents:")
 	fmt.Println(string(body))
 
 	writeToFile(body)
