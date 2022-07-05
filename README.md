@@ -4,8 +4,12 @@ Getignore gets a `.gitignore` file from [https://github.com/github/gitignore](ht
 If there is a `.gitignore` currently in the folder this tool will **overwrite** it so it is really only meant for the initial setup.
 
 ## Usage
+Using `go install`:
+```sh
+$ go install .
+```
 
-Build it and then move the `getignore` executable somewhere in your path
+Or build it and manually move the `getignore` executable somewhere in your path
 ```sh
 $ go build .
 ```
